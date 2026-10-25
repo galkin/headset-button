@@ -14,9 +14,13 @@ enum ActionRunner {
             configuration.activates = false
             NSWorkspace.shared.open(url, configuration: configuration) { app, error in
                 if let error {
-                    Log.action.error("Open URL \(url.absoluteString, privacy: .public) failed: \(error.localizedDescription, privacy: .public)")
+                    Log.action.error(
+                        "Open URL \(url.absoluteString, privacy: .public) failed: \(error.localizedDescription, privacy: .public)"
+                    )
                 } else {
-                    Log.action.notice("Opened \(url.absoluteString, privacy: .public) in \(app?.localizedName ?? "unknown app", privacy: .public)")
+                    Log.action.notice(
+                        "Opened \(url.absoluteString, privacy: .public) in \(app?.localizedName ?? "unknown app", privacy: .public)"
+                    )
                 }
             }
         case .pressShortcut(let combo):
@@ -37,7 +41,8 @@ enum ActionRunner {
     private static func press(_ combo: KeyCombo) {
         let source = CGEventSource(stateID: .hidSystemState)
         for keyDown in [true, false] {
-            guard let event = CGEvent(keyboardEventSource: source, virtualKey: combo.virtualKeyCode, keyDown: keyDown) else { continue }
+            guard let event = CGEvent(keyboardEventSource: source, virtualKey: combo.virtualKeyCode, keyDown: keyDown)
+            else { continue }
             event.flags = combo.eventFlags
             event.post(tap: .cghidEventTap)
         }

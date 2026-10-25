@@ -1,5 +1,6 @@
 import CoreGraphics
 import Testing
+
 @testable import HeadsetButtonCore
 
 @Suite struct ShortcutCaptureTests {
@@ -19,12 +20,15 @@ import Testing
     }
 
     @Test func capsLockFnAndDeviceBitsAreIgnored() {
-        let flags = CGEventFlags(rawValue: CGEventFlags.maskCommand.rawValue
-            | CGEventFlags.maskAlphaShift.rawValue
-            | CGEventFlags.maskSecondaryFn.rawValue
-            | CGEventFlags.maskNonCoalesced.rawValue
-            | 0x8) // NX_DEVICELCMDKEYMASK
-        #expect(KeyCombo(keyCode: Self.keyA, flags: flags) == KeyCombo(carbonKeyCode: Self.keyA, carbonModifiers: KeyCombo.cmdKey))
+        let flags = CGEventFlags(
+            rawValue: CGEventFlags.maskCommand.rawValue
+                | CGEventFlags.maskAlphaShift.rawValue
+                | CGEventFlags.maskSecondaryFn.rawValue
+                | CGEventFlags.maskNonCoalesced.rawValue
+                | 0x8)  // NX_DEVICELCMDKEYMASK
+        #expect(
+            KeyCombo(keyCode: Self.keyA, flags: flags)
+                == KeyCombo(carbonKeyCode: Self.keyA, carbonModifiers: KeyCombo.cmdKey))
     }
 
     @Test func eventFlagsRoundTrip() {
@@ -39,23 +43,29 @@ import Testing
     }
 
     @Test func escapeAndDeleteWithModifiersAreShortcuts() {
-        #expect(ShortcutCapture.decide(keyCode: KeyCombo.escapeKeyCode, flags: .maskCommand)
-            == .capture(KeyCombo(carbonKeyCode: KeyCombo.escapeKeyCode, carbonModifiers: KeyCombo.cmdKey)))
-        #expect(ShortcutCapture.decide(keyCode: KeyCombo.deleteKeyCode, flags: .maskControl)
-            == .capture(KeyCombo(carbonKeyCode: KeyCombo.deleteKeyCode, carbonModifiers: KeyCombo.controlKey)))
+        #expect(
+            ShortcutCapture.decide(keyCode: KeyCombo.escapeKeyCode, flags: .maskCommand)
+                == .capture(KeyCombo(carbonKeyCode: KeyCombo.escapeKeyCode, carbonModifiers: KeyCombo.cmdKey)))
+        #expect(
+            ShortcutCapture.decide(keyCode: KeyCombo.deleteKeyCode, flags: .maskControl)
+                == .capture(KeyCombo(carbonKeyCode: KeyCombo.deleteKeyCode, carbonModifiers: KeyCombo.controlKey)))
     }
 
     @Test func tabAndShiftTabMoveFocus() {
         #expect(ShortcutCapture.decide(keyCode: KeyCombo.tabKeyCode, flags: []) == .moveFocus(backward: false))
         #expect(ShortcutCapture.decide(keyCode: KeyCombo.tabKeyCode, flags: .maskShift) == .moveFocus(backward: true))
-        #expect(ShortcutCapture.decide(keyCode: KeyCombo.tabKeyCode, flags: .maskAlphaShift) == .moveFocus(backward: false))
+        #expect(
+            ShortcutCapture.decide(keyCode: KeyCombo.tabKeyCode, flags: .maskAlphaShift) == .moveFocus(backward: false))
     }
 
     @Test func tabWithCommandLikeModifiersIsAShortcut() {
-        #expect(ShortcutCapture.decide(keyCode: KeyCombo.tabKeyCode, flags: .maskControl)
-            == .capture(KeyCombo(carbonKeyCode: KeyCombo.tabKeyCode, carbonModifiers: KeyCombo.controlKey)))
-        #expect(ShortcutCapture.decide(keyCode: KeyCombo.tabKeyCode, flags: [.maskShift, .maskCommand])
-            == .capture(KeyCombo(carbonKeyCode: KeyCombo.tabKeyCode, carbonModifiers: KeyCombo.shiftKey | KeyCombo.cmdKey)))
+        #expect(
+            ShortcutCapture.decide(keyCode: KeyCombo.tabKeyCode, flags: .maskControl)
+                == .capture(KeyCombo(carbonKeyCode: KeyCombo.tabKeyCode, carbonModifiers: KeyCombo.controlKey)))
+        #expect(
+            ShortcutCapture.decide(keyCode: KeyCombo.tabKeyCode, flags: [.maskShift, .maskCommand])
+                == .capture(
+                    KeyCombo(carbonKeyCode: KeyCombo.tabKeyCode, carbonModifiers: KeyCombo.shiftKey | KeyCombo.cmdKey)))
     }
 
     @Test func plainAndShiftOnlyKeysKeepRecording() {
@@ -65,7 +75,8 @@ import Testing
     }
 
     @Test func functionKeysNeedNoModifier() {
-        #expect(ShortcutCapture.decide(keyCode: 96, flags: []) == .capture(KeyCombo(carbonKeyCode: 96, carbonModifiers: 0)))
+        #expect(
+            ShortcutCapture.decide(keyCode: 96, flags: []) == .capture(KeyCombo(carbonKeyCode: 96, carbonModifiers: 0)))
     }
 
     @Test func displayStringUsesAppleModifierOrder() {

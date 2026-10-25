@@ -7,7 +7,9 @@ import HeadsetButtonCore
 /// part (spec, "Capturing Gestures").
 @MainActor
 final class HeadsetConnectionMonitor {
-    private typealias Listener = (object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)
+    private typealias Listener = (
+        object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock
+    )
 
     private let onChange: @MainActor ([Headset]) -> Void
     private let anyOutputCounts: Bool
@@ -24,7 +26,9 @@ final class HeadsetConnectionMonitor {
 
     func start() {
         // The device list changes when a Headset connects or disconnects.
-        if let listener = Self.listen(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyDevices, { [weak self] in self?.evaluate() }) {
+        if let listener = Self.listen(
+            AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyDevices, { [weak self] in self?.evaluate() })
+        {
             systemListeners.append(listener)
         }
         evaluate()
@@ -74,7 +78,9 @@ final class HeadsetConnectionMonitor {
         let block: AudioObjectPropertyListenerBlock = { _, _ in MainActor.assumeIsolated { handler() } }
         let status = AudioObjectAddPropertyListenerBlock(object, &address, .main, block)
         guard status == noErr else {
-            Log.slot.error("Could not listen to \(AudioProperty.fourCC(selector), privacy: .public) on object \(object): \(status)")
+            Log.slot.error(
+                "Could not listen to \(AudioProperty.fourCC(selector), privacy: .public) on object \(object): \(status)"
+            )
             return nil
         }
         return (object, address, block)

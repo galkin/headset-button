@@ -17,10 +17,12 @@ enum Notifications {
                 let content = UNMutableNotificationContent()
                 content.title = "Headset mic in use"
                 content.body = body
-                try await center.add(UNNotificationRequest(identifier: "headset-mic-busy", content: content, trigger: nil))
+                try await center.add(
+                    UNNotificationRequest(identifier: "headset-mic-busy", content: content, trigger: nil))
                 Log.mic.notice("Notified: \(body, privacy: .public)")
             } catch {
-                Log.mic.error("Notification failed: \(error.localizedDescription, privacy: .public): \(body, privacy: .public)")
+                Log.mic.error(
+                    "Notification failed: \(error.localizedDescription, privacy: .public): \(body, privacy: .public)")
             }
         }
     }

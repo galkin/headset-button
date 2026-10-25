@@ -16,10 +16,12 @@ struct SettingsView: View {
             }
 
             SettingsSection("General") {
-                Toggle(isOn: SwiftUI.Binding(
-                    get: { model.launchesAtLogin },
-                    set: { model.setLaunchesAtLogin($0) }
-                )) {
+                Toggle(
+                    isOn: SwiftUI.Binding(
+                        get: { model.launchesAtLogin },
+                        set: { model.setLaunchesAtLogin($0) }
+                    )
+                ) {
                     Text("Launch at login")
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -186,7 +188,8 @@ private struct GesturesTable: View {
                 RowDivider()
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     Label(
-                        LastPressText.text(gesture: lastPress.gesture, elapsed: context.date.timeIntervalSince(lastPress.date)),
+                        LastPressText.text(
+                            gesture: lastPress.gesture, elapsed: context.date.timeIntervalSince(lastPress.date)),
                         systemImage: "clock"
                     )
                     .font(.caption)

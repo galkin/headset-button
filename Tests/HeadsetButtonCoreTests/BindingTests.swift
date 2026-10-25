@@ -1,11 +1,12 @@
 import CoreGraphics
 import Foundation
 import Testing
+
 @testable import HeadsetButtonCore
 
 @Suite struct BindingTests {
     static let superwhisperHotkey = KeyCombo(
-        carbonKeyCode: 49, // Space
+        carbonKeyCode: 49,  // Space
         carbonModifiers: KeyCombo.controlKey | KeyCombo.optionKey | KeyCombo.cmdKey
     )
 

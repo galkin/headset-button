@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import HeadsetButtonCore
 
 @Suite struct URLValidationTests {
@@ -10,8 +11,12 @@ import Testing
         #expect(URLValidation.decide(text: "", url: nil, handler: nil) == .empty)
         #expect(URLValidation.decide(text: "  \n", url: nil, handler: nil) == .empty)
         #expect(URLValidation.decide(text: "example.com", url: nil, handler: nil) == .notAURL)
-        #expect(URLValidation.decide(text: "superwhisper://record", url: url, handler: nil) == .noApp(scheme: "superwhisper"))
-        #expect(URLValidation.decide(text: "superwhisper://record", url: url, handler: Self.superwhisper) == .opens(Self.superwhisper))
+        #expect(
+            URLValidation.decide(text: "superwhisper://record", url: url, handler: nil)
+                == .noApp(scheme: "superwhisper"))
+        #expect(
+            URLValidation.decide(text: "superwhisper://record", url: url, handler: Self.superwhisper)
+                == .opens(Self.superwhisper))
     }
 
     @Test func parseNeedsAScheme() {
@@ -22,7 +27,10 @@ import Testing
 
     @Test func validateLooksUpOnlyParsedURLs() {
         var looked: [URL] = []
-        let lookup: (URL) -> URLHandler? = { looked.append($0); return $0.scheme == "superwhisper" ? Self.superwhisper : nil }
+        let lookup: (URL) -> URLHandler? = {
+            looked.append($0)
+            return $0.scheme == "superwhisper" ? Self.superwhisper : nil
+        }
         #expect(URLValidation.validate("not a url", lookup: lookup) == .notAURL)
         #expect(looked.isEmpty)
         #expect(URLValidation.validate("superwhishper://record", lookup: lookup) == .noApp(scheme: "superwhishper"))

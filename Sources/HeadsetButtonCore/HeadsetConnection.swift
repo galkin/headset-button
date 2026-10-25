@@ -12,11 +12,12 @@ public struct Headset: Equatable, Sendable {
 
     /// For the `slot` log.
     public var logDescription: String {
-        let kind = switch transport {
-        case .bluetooth: "Bluetooth"
-        case .bluetoothLE: "Bluetooth LE"
-        case .other: "not Bluetooth"
-        }
+        let kind =
+            switch transport {
+            case .bluetooth: "Bluetooth"
+            case .bluetoothLE: "Bluetooth LE"
+            case .other: "not Bluetooth"
+            }
         return "\(name) [\(id), \(kind)]"
     }
 }

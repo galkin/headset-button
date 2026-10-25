@@ -16,16 +16,16 @@ public enum CaptureDecision: Equatable, Sendable {
     case keepRecording
 }
 
-public extension KeyCombo {
+extension KeyCombo {
     // Virtual key codes (HIToolbox/Events.h, kVK_*).
-    static let escapeKeyCode = 53
-    static let deleteKeyCode = 51
-    static let forwardDeleteKeyCode = 117
-    static let tabKeyCode = 48
+    public static let escapeKeyCode = 53
+    public static let deleteKeyCode = 51
+    public static let forwardDeleteKeyCode = 117
+    public static let tabKeyCode = 48
 
     /// The KeyCombo for a key-down's key code and `CGEventFlags`, ignoring Caps Lock,
     /// Fn and the device-specific bits.
-    init(keyCode: Int, flags: CGEventFlags) {
+    public init(keyCode: Int, flags: CGEventFlags) {
         var modifiers = 0
         if flags.contains(.maskCommand) { modifiers |= Self.cmdKey }
         if flags.contains(.maskShift) { modifiers |= Self.shiftKey }
@@ -35,15 +35,15 @@ public extension KeyCombo {
     }
 
     /// Has ⌃, ⌥ or ⌘ (Shift alone only changes the character).
-    var hasCommandLikeModifier: Bool {
+    public var hasCommandLikeModifier: Bool {
         carbonModifiers & (Self.cmdKey | Self.optionKey | Self.controlKey) != 0
     }
 
     /// F1–F20 work as shortcuts without modifiers.
-    var isFunctionKey: Bool { Self.functionKeyNames[carbonKeyCode] != nil }
+    public var isFunctionKey: Bool { Self.functionKeyNames[carbonKeyCode] != nil }
 
     /// Modifier symbols in Apple's order: ⌃⌥⇧⌘.
-    var modifierSymbols: String {
+    public var modifierSymbols: String {
         var symbols = ""
         if carbonModifiers & Self.controlKey != 0 { symbols += "⌃" }
         if carbonModifiers & Self.optionKey != 0 { symbols += "⌥" }
@@ -54,14 +54,15 @@ public extension KeyCombo {
 
     /// Name of a key that types no character (Space, Return, arrows, F-keys), or nil
     /// for a character key, whose name depends on the keyboard layout.
-    var specialKeyName: String? {
+    public var specialKeyName: String? {
         Self.functionKeyNames[carbonKeyCode] ?? Self.specialKeyNames[carbonKeyCode]
     }
 
     /// E.g. "⌃⌥⌘Space". `characterKeyName` is the layout's character for the key
     /// (the app looks it up); unknown keys show as "Key 42".
-    func displayString(characterKeyName: String?) -> String {
-        let name = specialKeyName
+    public func displayString(characterKeyName: String?) -> String {
+        let name =
+            specialKeyName
             ?? characterKeyName.flatMap { $0.isEmpty ? nil : $0.uppercased() }
             ?? "Key \(carbonKeyCode)"
         return modifierSymbols + name

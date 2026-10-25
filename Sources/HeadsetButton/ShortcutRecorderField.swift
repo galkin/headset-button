@@ -19,7 +19,10 @@ struct ShortcutRecorderField: View {
         VStack(alignment: .leading, spacing: 4) {
             ShortcutRecorderControl(id: id, title: title, combo: $combo)
                 // Fill the table's Value column like the URL field does.
-                .frame(maxWidth: .infinity, minHeight: ShortcutRecorderView.size.height, maxHeight: ShortcutRecorderView.size.height)
+                .frame(
+                    maxWidth: .infinity, minHeight: ShortcutRecorderView.size.height,
+                    maxHeight: ShortcutRecorderView.size.height
+                )
                 // An NSView has no text baseline for SwiftUI; give the row's
                 // `.firstTextBaseline` alignment the label's baseline instead of the view's bottom.
                 .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 4 }
@@ -138,7 +141,9 @@ final class ShortcutRecorderView: NSView {
         super.layout()
         let buttonSide: CGFloat = 16
         let inset: CGFloat = 6
-        clearButton.frame = NSRect(x: bounds.maxX - inset + 2 - buttonSide, y: bounds.midY - buttonSide / 2, width: buttonSide, height: buttonSide)
+        clearButton.frame = NSRect(
+            x: bounds.maxX - inset + 2 - buttonSide, y: bounds.midY - buttonSide / 2, width: buttonSide,
+            height: buttonSide)
         let trailing = clearButton.isHidden ? inset : inset + buttonSide
         let height = label.intrinsicContentSize.height
         // Keep the text centered in the whole field; only shrink it away from the button.
@@ -147,7 +152,8 @@ final class ShortcutRecorderView: NSView {
     }
 
     private var shape: NSBezierPath {
-        NSBezierPath(roundedRect: bounds.insetBy(dx: 0.5, dy: 0.5), xRadius: Self.cornerRadius, yRadius: Self.cornerRadius)
+        NSBezierPath(
+            roundedRect: bounds.insetBy(dx: 0.5, dy: 0.5), xRadius: Self.cornerRadius, yRadius: Self.cornerRadius)
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -263,14 +269,16 @@ final class ShortcutRecorderView: NSView {
     // MARK: - Recording
 
     private func startRecording() {
-        let started = ShortcutRecording.shared.start(id: recorderID, callbacks: .init(
-            onResult: { [weak self] combo in
-                self?.combo = combo
-                self?.onChange?(combo)
-            },
-            onMoveFocus: { [weak self] backward in self?.moveFocus(backward: backward) },
-            onEnd: { [weak self] in self?.recordingEnded() }
-        ))
+        let started = ShortcutRecording.shared.start(
+            id: recorderID,
+            callbacks: .init(
+                onResult: { [weak self] combo in
+                    self?.combo = combo
+                    self?.onChange?(combo)
+                },
+                onMoveFocus: { [weak self] backward in self?.moveFocus(backward: backward) },
+                onEnd: { [weak self] in self?.recordingEnded() }
+            ))
         isRecording = started
         // Couldn't record (Accessibility): don't sit focused looking like it records.
         if !started { DispatchQueue.main.async { [weak self] in self?.resignFocus() } }

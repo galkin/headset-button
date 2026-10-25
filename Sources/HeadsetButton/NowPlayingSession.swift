@@ -1,5 +1,5 @@
-import AppKit
 import AVFoundation
+import AppKit
 import Foundation
 import HeadsetButtonCore
 import MediaPlayer
@@ -131,7 +131,8 @@ final class NowPlayingSession {
             let gesture = Gesture(command: command)
             let sourceID = PrivateEventFields.string(of: event, key: "sourceID")
             let decision = SourceFilter.decide(sourceID: sourceID)
-            Log.gesture.notice("""
+            Log.gesture.notice(
+                """
                 command=\(command.rawValue, privacy: .public) gesture=\(gesture.rawValue, privacy: .public) \
                 sourceID=\(sourceID ?? "unreadable", privacy: .public) \
                 decision=\(decision.logDescription, privacy: .public)

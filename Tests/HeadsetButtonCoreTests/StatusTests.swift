@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import HeadsetButtonCore
 
 @Suite struct StatusTests {
@@ -72,7 +73,8 @@ import Testing
 
     @Test func accessibilityNeededOnlyForUntrustedShortcutBindings() {
         #expect(state(bindings: [Self.shortcutBinding], trusted: false).status == .accessibilityNeeded)
-        #expect(state(bindings: [Self.urlBinding, Self.shortcutBinding], trusted: false).status == .accessibilityNeeded)
+        #expect(
+            state(bindings: [Self.urlBinding, Self.shortcutBinding], trusted: false).status == .accessibilityNeeded)
         #expect(state(bindings: [Self.shortcutBinding], trusted: true).status == .listening)
         #expect(state(bindings: [Self.urlBinding], trusted: false).status == .listening)
     }
@@ -97,9 +99,13 @@ import Testing
         #expect(state(bindings: [], busy: Self.zoomBusy).status == .paused(.noBindings))
         #expect(state(bindings: [], headsets: []).status == .paused(.noBindings))
         // No headset beats mic busy, Accessibility and a playing player.
-        #expect(state(bindings: [Self.shortcutBinding], player: "Music", busy: Self.zoomBusy, headsets: []).status == .noHeadset)
+        #expect(
+            state(bindings: [Self.shortcutBinding], player: "Music", busy: Self.zoomBusy, headsets: []).status
+                == .noHeadset)
         // Mic busy beats Accessibility and a playing player.
-        #expect(state(bindings: [Self.shortcutBinding], player: "Music", busy: Self.zoomBusy).status == .headsetMicBusy(app: "Zoom"))
+        #expect(
+            state(bindings: [Self.shortcutBinding], player: "Music", busy: Self.zoomBusy).status
+                == .headsetMicBusy(app: "Zoom"))
         // Accessibility beats a playing player.
         #expect(state(bindings: [Self.shortcutBinding], player: "Music").status == .accessibilityNeeded)
     }
@@ -128,8 +134,11 @@ import Testing
         #expect(ListenerStatus.paused(.noBindings).detail == "Not listening: no active Bindings")
         #expect(ListenerStatus.playerHasHeadset(player: "Spotify").detail == "Not listening: Spotify is playing")
         #expect(ListenerStatus.paused(.disabled).detail == "Not listening: disabled in menu")
-        #expect(ListenerStatus.headsetMicBusy(app: "Zoom").detail == "Not listening: Zoom is recording from the headset mic")
-        #expect(ListenerStatus.headsetMicBusy(app: nil).detail == "Not listening: An app is recording from the headset mic")
+        #expect(
+            ListenerStatus.headsetMicBusy(app: "Zoom").detail == "Not listening: Zoom is recording from the headset mic"
+        )
+        #expect(
+            ListenerStatus.headsetMicBusy(app: nil).detail == "Not listening: An app is recording from the headset mic")
         #expect(ListenerStatus.accessibilityNeeded.detail == "Not listening: Accessibility needed")
         #expect(ListenerStatus.noHeadset.detail == "Not listening: no headset connected")
     }

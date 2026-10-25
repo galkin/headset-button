@@ -43,9 +43,12 @@ enum MenuBarIcon {
         let cap = NSBezierPath()
         cap.move(to: NSPoint(x: 4, y: 14))
         cap.line(to: NSPoint(x: 5, y: 9.5))
-        cap.curve(to: NSPoint(x: 6.5, y: 8.5), controlPoint1: NSPoint(x: 5.2, y: 8.8), controlPoint2: NSPoint(x: 5.8, y: 8.5))
+        cap.curve(
+            to: NSPoint(x: 6.5, y: 8.5), controlPoint1: NSPoint(x: 5.2, y: 8.8), controlPoint2: NSPoint(x: 5.8, y: 8.5))
         cap.line(to: NSPoint(x: 11.5, y: 8.5))
-        cap.curve(to: NSPoint(x: 13, y: 9.5), controlPoint1: NSPoint(x: 12.2, y: 8.5), controlPoint2: NSPoint(x: 12.8, y: 8.8))
+        cap.curve(
+            to: NSPoint(x: 13, y: 9.5), controlPoint1: NSPoint(x: 12.2, y: 8.5), controlPoint2: NSPoint(x: 12.8, y: 8.8)
+        )
         cap.line(to: NSPoint(x: 14, y: 14))
         stroke(cap)
 

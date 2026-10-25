@@ -46,19 +46,23 @@ final class ShortcutRecording {
         failure = nil
 
         let mask = CGEventMask(1 << CGEventType.keyDown.rawValue) | CGEventMask(1 << CGEventType.keyUp.rawValue)
-        guard let tap = CGEvent.tapCreate(
-            tap: .cghidEventTap,
-            place: .headInsertEventTap,
-            options: .defaultTap,
-            eventsOfInterest: mask,
-            callback: shortcutTapCallback,
-            userInfo: nil
-        ) else {
+        guard
+            let tap = CGEvent.tapCreate(
+                tap: .cghidEventTap,
+                place: .headInsertEventTap,
+                options: .defaultTap,
+                eventsOfInterest: mask,
+                callback: shortcutTapCallback,
+                userInfo: nil
+            )
+        else {
             let trusted = Accessibility.isTrusted
-            let message = trusted
+            let message =
+                trusted
                 ? "Can't record: macOS refused the keyboard event tap."
                 : "Can't record: Headset Button needs Accessibility."
-            Log.recorder.error("""
+            Log.recorder.error(
+                """
                 Event tap failed: accessibility=\(trusted, privacy: .public) \
                 inputMonitoring=\(CGPreflightListenEventAccess(), privacy: .public)
                 """)
@@ -73,7 +77,8 @@ final class ShortcutRecording {
         self.callbacks = callbacks
         activeID = id
         pendingKeyUp = nil
-        Log.recorder.notice("""
+        Log.recorder.notice(
+            """
             Event tap created (HID, head insert); recording. \
             secureInput=\(IsSecureEventInputEnabled(), privacy: .public)
             """)
@@ -127,7 +132,8 @@ final class ShortcutRecording {
         let name = combo.displayString(characterKeyName: KeyNames.character(for: keyCode))
         switch ShortcutCapture.decide(keyCode: keyCode, flags: flags) {
         case .capture(let captured):
-            Log.recorder.notice("""
+            Log.recorder.notice(
+                """
                 Captured \(name, privacy: .public) (key code \(captured.carbonKeyCode), \
                 modifiers \(captured.carbonModifiers)); swallowed
                 """)
@@ -153,7 +159,8 @@ final class ShortcutRecording {
             pendingKeyUp = keyCode
             return true
         case .moveFocus(let backward):
-            Log.recorder.notice("\(backward ? "Shift-Tab" : "Tab", privacy: .public): recording ended, moving focus; swallowed")
+            Log.recorder.notice(
+                "\(backward ? "Shift-Tab" : "Tab", privacy: .public): recording ended, moving focus; swallowed")
             let onMoveFocus = callbacks?.onMoveFocus
             finishRecording()
             pendingKeyUp = keyCode

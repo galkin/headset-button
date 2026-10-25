@@ -20,7 +20,7 @@ public enum SilentAudio {
         append("WAVE")
         append("fmt ")
         append32(16)
-        append16(1) // PCM
+        append16(1)  // PCM
         append16(channels)
         append32(sampleRate)
         append32(sampleRate * blockAlign)

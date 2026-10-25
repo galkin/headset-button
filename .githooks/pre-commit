@@ -1,0 +1,12 @@
+#!/bin/sh
+# Lint staged Swift files, then run the unit tests. Enable with: git config core.hooksPath .githooks
+set -e
+files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.swift')
+if [ -n "$files" ]; then
+    # shellcheck disable=SC2086
+    swift format lint --strict $files || {
+        echo "pre-commit: fix with 'swift format format -i -r Sources Tests Package.swift'" >&2
+        exit 1
+    }
+fi
+swift test --quiet

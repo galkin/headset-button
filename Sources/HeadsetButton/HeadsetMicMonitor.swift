@@ -16,9 +16,12 @@ final class HeadsetMicMonitor {
     private(set) var busy: HeadsetMicBusy?
 
     private var headset: [AudioDeviceSummary] = []
-    private var listeners: [(object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)] = []
-    private var deviceListeners: [(object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)] = []
-    private var processListeners: [AudioObjectID: [(address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)]] = [:]
+    private var listeners:
+        [(object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)] = []
+    private var deviceListeners:
+        [(object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)] = []
+    private var processListeners:
+        [AudioObjectID: [(address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)]] = [:]
     private let ownPID = ProcessInfo.processInfo.processIdentifier
 
     init(onChange: @escaping @MainActor (HeadsetMicBusy?) -> Void) {
@@ -28,7 +31,9 @@ final class HeadsetMicMonitor {
     func start() {
         let system = AudioObjectID(kAudioObjectSystemObject)
         listen(system, kAudioHardwarePropertyDevices, into: &listeners) { [weak self] in self?.rescanDevices() }
-        listen(system, kAudioHardwarePropertyProcessObjectList, into: &listeners) { [weak self] in self?.rescanProcesses() }
+        listen(system, kAudioHardwarePropertyProcessObjectList, into: &listeners) { [weak self] in
+            self?.rescanProcesses()
+        }
         rescanDevices()
         rescanProcesses()
     }
@@ -39,7 +44,8 @@ final class HeadsetMicMonitor {
         for listener in deviceListeners { remove(listener.object, listener.address, listener.block) }
         deviceListeners = []
 
-        let devices = AudioProperty.objects(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyDevices).map(AudioProperty.summary(ofDevice:))
+        let devices = AudioProperty.objects(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyDevices).map(
+            AudioProperty.summary(ofDevice:))
         let selected = HeadsetInputDevices.select(from: devices)
         if selected.map(\.id) != headset.map(\.id) {
             let names = selected.map { "\($0.name) [\($0.id) \($0.uid)]" }.joined(separator: ", ")
@@ -47,7 +53,9 @@ final class HeadsetMicMonitor {
         }
         headset = selected
         for device in selected {
-            listen(device.id, kAudioDevicePropertyDeviceIsRunningSomewhere, into: &deviceListeners) { [weak self] in self?.evaluate() }
+            listen(device.id, kAudioDevicePropertyDeviceIsRunningSomewhere, into: &deviceListeners) { [weak self] in
+                self?.evaluate()
+            }
         }
         evaluate()
     }
@@ -55,15 +63,20 @@ final class HeadsetMicMonitor {
     // MARK: - Processes
 
     private func rescanProcesses() {
-        let processes = Set(AudioProperty.objects(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyProcessObjectList))
+        let processes = Set(
+            AudioProperty.objects(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyProcessObjectList))
         for (process, entries) in processListeners where !processes.contains(process) {
             for entry in entries { remove(process, entry.address, entry.block) }
             processListeners[process] = nil
         }
         for process in processes where processListeners[process] == nil {
-            var entries: [(object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)] = []
+            var entries:
+                [(object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)] =
+                    []
             listen(process, kAudioProcessPropertyIsRunningInput, into: &entries) { [weak self] in self?.evaluate() }
-            listen(process, kAudioProcessPropertyDevices, scope: kAudioObjectPropertyScopeInput, into: &entries) { [weak self] in self?.evaluate() }
+            listen(process, kAudioProcessPropertyDevices, scope: kAudioObjectPropertyScopeInput, into: &entries) {
+                [weak self] in self?.evaluate()
+            }
             processListeners[process] = entries.map { ($0.address, $0.block) }
         }
         evaluate()
@@ -74,7 +87,8 @@ final class HeadsetMicMonitor {
             pid: Int32(bitPattern: AudioProperty.uint32(process, kAudioProcessPropertyPID) ?? 0),
             bundleID: AudioProperty.string(process, kAudioProcessPropertyBundleID),
             isRunningInput: (AudioProperty.uint32(process, kAudioProcessPropertyIsRunningInput) ?? 0) != 0,
-            inputDeviceIDs: AudioProperty.objects(process, kAudioProcessPropertyDevices, scope: kAudioObjectPropertyScopeInput)
+            inputDeviceIDs: AudioProperty.objects(
+                process, kAudioProcessPropertyDevices, scope: kAudioObjectPropertyScopeInput)
         )
     }
 
@@ -85,7 +99,9 @@ final class HeadsetMicMonitor {
         guard new != busy else { return }
         busy = new
         if let new {
-            Log.mic.notice("Headset mic busy: \(new.appName ?? "unknown app", privacy: .public) records from \(new.headsetName, privacy: .public)")
+            Log.mic.notice(
+                "Headset mic busy: \(new.appName ?? "unknown app", privacy: .public) records from \(new.headsetName, privacy: .public)"
+            )
         } else {
             Log.mic.notice("Headset mic free")
         }
@@ -93,10 +109,14 @@ final class HeadsetMicMonitor {
     }
 
     private func currentBusy() -> HeadsetMicBusy? {
-        let running = headset.filter { (AudioProperty.uint32($0.id, kAudioDevicePropertyDeviceIsRunningSomewhere) ?? 0) != 0 }
+        let running = headset.filter {
+            (AudioProperty.uint32($0.id, kAudioDevicePropertyDeviceIsRunningSomewhere) ?? 0) != 0
+        }
         guard !running.isEmpty else { return nil }
-        let processes = AudioProperty.objects(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyProcessObjectList)
-            .map(Self.summary(ofProcess:))
+        let processes = AudioProperty.objects(
+            AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyProcessObjectList
+        )
+        .map(Self.summary(ofProcess:))
         let recorders = HeadsetMicRecorders.recording(
             processes: processes,
             headsetDeviceIDs: Set(running.map(\.id)),
@@ -131,21 +151,30 @@ final class HeadsetMicMonitor {
         _ object: AudioObjectID,
         _ selector: AudioObjectPropertySelector,
         scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-        into list: inout [(object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)],
+        into list:
+            inout [(
+                object: AudioObjectID, address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock
+            )],
         _ handler: @escaping @MainActor () -> Void
     ) {
-        var address = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: kAudioObjectPropertyElementMain)
+        var address = AudioObjectPropertyAddress(
+            mSelector: selector, mScope: scope, mElement: kAudioObjectPropertyElementMain)
         // Delivered on the main queue.
         let block: AudioObjectPropertyListenerBlock = { _, _ in MainActor.assumeIsolated { handler() } }
         let status = AudioObjectAddPropertyListenerBlock(object, &address, .main, block)
         if status == noErr {
             list.append((object, address, block))
         } else {
-            Log.mic.error("Could not listen to \(AudioProperty.fourCC(selector), privacy: .public) on object \(object): \(status)")
+            Log.mic.error(
+                "Could not listen to \(AudioProperty.fourCC(selector), privacy: .public) on object \(object): \(status)"
+            )
         }
     }
 
-    private func remove(_ object: AudioObjectID, _ address: AudioObjectPropertyAddress, _ block: @escaping AudioObjectPropertyListenerBlock) {
+    private func remove(
+        _ object: AudioObjectID, _ address: AudioObjectPropertyAddress,
+        _ block: @escaping AudioObjectPropertyListenerBlock
+    ) {
         var address = address
         // The object may be gone already; nothing to do then.
         _ = AudioObjectRemovePropertyListenerBlock(object, &address, .main, block)
@@ -154,7 +183,9 @@ final class HeadsetMicMonitor {
 
 /// Reads CoreAudio properties; nil or empty when the property is missing.
 enum AudioProperty {
-    static func address(_ selector: AudioObjectPropertySelector, _ scope: AudioObjectPropertyScope) -> AudioObjectPropertyAddress {
+    static func address(_ selector: AudioObjectPropertySelector, _ scope: AudioObjectPropertyScope)
+        -> AudioObjectPropertyAddress
+    {
         AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: kAudioObjectPropertyElementMain)
     }
 
@@ -169,7 +200,9 @@ enum AudioProperty {
         var address = address(selector, kAudioObjectPropertyScopeGlobal)
         var value: Unmanaged<CFString>?
         var size = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
-        guard AudioObjectGetPropertyData(object, &address, 0, nil, &size, &value) == noErr, let value else { return nil }
+        guard AudioObjectGetPropertyData(object, &address, 0, nil, &size, &value) == noErr, let value else {
+            return nil
+        }
         let string = value.takeRetainedValue() as String
         return string.isEmpty ? nil : string
     }
@@ -189,11 +222,12 @@ enum AudioProperty {
 
     /// A device as far as finding the Headset goes.
     static func summary(ofDevice device: AudioObjectID) -> AudioDeviceSummary {
-        let transport: AudioDeviceSummary.Transport = switch uint32(device, kAudioDevicePropertyTransportType) {
-        case kAudioDeviceTransportTypeBluetooth: .bluetooth
-        case kAudioDeviceTransportTypeBluetoothLE: .bluetoothLE
-        default: .other
-        }
+        let transport: AudioDeviceSummary.Transport =
+            switch uint32(device, kAudioDevicePropertyTransportType) {
+            case kAudioDeviceTransportTypeBluetooth: .bluetooth
+            case kAudioDeviceTransportTypeBluetoothLE: .bluetoothLE
+            default: .other
+            }
         return AudioDeviceSummary(
             id: device,
             name: string(device, kAudioObjectPropertyName) ?? "Headset",

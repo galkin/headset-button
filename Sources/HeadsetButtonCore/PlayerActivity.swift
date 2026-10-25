@@ -8,7 +8,9 @@ public struct PlayerActivity: Equatable, Sendable {
     }
 
     public static let players: [Player] = [
-        Player(bundleID: "com.spotify.client", notificationName: "com.spotify.client.PlaybackStateChanged", name: "Spotify"),
+        Player(
+            bundleID: "com.spotify.client", notificationName: "com.spotify.client.PlaybackStateChanged", name: "Spotify"
+        ),
         Player(bundleID: "com.apple.Music", notificationName: "com.apple.Music.playerInfo", name: "Music"),
     ]
 

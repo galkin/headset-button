@@ -1,10 +1,15 @@
 import Foundation
 import Testing
+
 @testable import HeadsetButtonCore
 
 @Suite struct HeadsetInputDevicesTests {
-    func device(_ id: UInt32, _ name: String, uid: String = "", _ transport: AudioDeviceSummary.Transport, input: Bool, output: Bool) -> AudioDeviceSummary {
-        AudioDeviceSummary(id: id, name: name, uid: uid, modelUID: "", transport: transport, hasInput: input, hasOutput: output)
+    func device(
+        _ id: UInt32, _ name: String, uid: String = "", _ transport: AudioDeviceSummary.Transport, input: Bool,
+        output: Bool
+    ) -> AudioDeviceSummary {
+        AudioDeviceSummary(
+            id: id, name: name, uid: uid, modelUID: "", transport: transport, hasInput: input, hasOutput: output)
     }
 
     @Test func prefersAirPodsOverOtherBluetoothInputs() {
@@ -51,34 +56,63 @@ import Testing
     @Test func busySoonAfterAnActionNotifiesOnce() {
         var rule = MicBusyNotificationRule()
         rule.actionRan(at: t0)
-        do { let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(0.4)); #expect(posted) }
-        do { let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(0.5)); #expect(!posted) }
-        do { let posted = rule.micBusyChanged(false, at: t0.addingTimeInterval(2)); #expect(!posted) }
-        do { let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(2.1)); #expect(!posted) }
+        do {
+            let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(0.4))
+            #expect(posted)
+        }
+        do {
+            let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(0.5))
+            #expect(!posted)
+        }
+        do {
+            let posted = rule.micBusyChanged(false, at: t0.addingTimeInterval(2))
+            #expect(!posted)
+        }
+        do {
+            let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(2.1))
+            #expect(!posted)
+        }
     }
 
     @Test func busyLongAfterAnActionOrWithoutOneIsSilent() {
         var rule = MicBusyNotificationRule()
-        do { let posted = rule.micBusyChanged(true, at: t0); #expect(!posted) }
-        do { let posted = rule.micBusyChanged(false, at: t0.addingTimeInterval(1)); #expect(!posted) }
+        do {
+            let posted = rule.micBusyChanged(true, at: t0)
+            #expect(!posted)
+        }
+        do {
+            let posted = rule.micBusyChanged(false, at: t0.addingTimeInterval(1))
+            #expect(!posted)
+        }
         rule.actionRan(at: t0.addingTimeInterval(2))
-        do { let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(2 + MicBusyNotificationRule.window + 0.1)); #expect(!posted) }
+        do {
+            let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(2 + MicBusyNotificationRule.window + 0.1))
+            #expect(!posted)
+        }
     }
 
     @Test func windowBoundaryAndAlreadyBusy() {
         var rule = MicBusyNotificationRule()
         rule.actionRan(at: t0)
-        do { let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(MicBusyNotificationRule.window)); #expect(posted) }
+        do {
+            let posted = rule.micBusyChanged(true, at: t0.addingTimeInterval(MicBusyNotificationRule.window))
+            #expect(posted)
+        }
 
         var already = MicBusyNotificationRule()
         _ = already.micBusyChanged(true, at: t0)
         already.actionRan(at: t0.addingTimeInterval(1))
-        do { let posted = already.micBusyChanged(true, at: t0.addingTimeInterval(1.2)); #expect(!posted) }
+        do {
+            let posted = already.micBusyChanged(true, at: t0.addingTimeInterval(1.2))
+            #expect(!posted)
+        }
     }
 
     @Test func body() {
-        #expect(MicBusyNotificationRule.body(for: HeadsetMicBusy(appName: "superwhisper", headsetName: "Nikita’s AirPods Max"))
-            == "superwhisper records from Nikita’s AirPods Max — stop it from the keyboard")
+        #expect(
+            MicBusyNotificationRule.body(
+                for: HeadsetMicBusy(appName: "superwhisper", headsetName: "Nikita’s AirPods Max"))
+                == "superwhisper records from Nikita’s AirPods Max — stop it from the keyboard")
     }
 }
 

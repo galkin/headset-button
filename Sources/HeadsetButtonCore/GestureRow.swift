@@ -139,7 +139,8 @@ extension BindingSet {
                 gesture: gesture,
                 draft: draft,
                 urlValidation: validation,
-                state: RowState.derive(draft: draft, urlValidation: validation, isAccessibilityTrusted: isAccessibilityTrusted)
+                state: RowState.derive(
+                    draft: draft, urlValidation: validation, isAccessibilityTrusted: isAccessibilityTrusted)
             )
         }
     }

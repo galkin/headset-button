@@ -1,4 +1,5 @@
 import Testing
+
 @testable import HeadsetButtonCore
 
 @Suite struct HeadsetConnectionTests {
@@ -6,7 +7,9 @@ import Testing
         _ id: UInt32, _ name: String, _ transport: AudioDeviceSummary.Transport,
         input: Bool = false, output: Bool = true, alive: Bool = true
     ) -> AudioDeviceSummary {
-        AudioDeviceSummary(id: id, name: name, uid: "uid-\(id)", modelUID: "", transport: transport, hasInput: input, hasOutput: output, isAlive: alive)
+        AudioDeviceSummary(
+            id: id, name: name, uid: "uid-\(id)", modelUID: "", transport: transport, hasInput: input,
+            hasOutput: output, isAlive: alive)
     }
 
     static let speakers = device(1, "MacBook Pro Speakers", .other)
@@ -16,8 +19,9 @@ import Testing
     @Test func aConnectedBluetoothOutputIsAHeadsetWhateverTheDefaultOutput() {
         // The device list carries no default-output fact: AirPods count while the Mac plays
         // through its speakers.
-        #expect(HeadsetConnection.connected(from: [Self.speakers, Self.mic, Self.airPods])
-            == [Headset(id: 42, name: "AirPods Max", transport: .bluetooth)])
+        #expect(
+            HeadsetConnection.connected(from: [Self.speakers, Self.mic, Self.airPods])
+                == [Headset(id: 42, name: "AirPods Max", transport: .bluetooth)])
     }
 
     @Test func bluetoothLEQualifies() {
@@ -43,17 +47,22 @@ import Testing
 
     @Test func everyConnectedHeadsetIsListed() {
         let beats = Self.device(7, "Beats", .bluetoothLE)
-        #expect(HeadsetConnection.connected(from: [Self.airPods, Self.speakers, beats]).map(\.name) == ["AirPods Max", "Beats"])
+        #expect(
+            HeadsetConnection.connected(from: [Self.airPods, Self.speakers, beats]).map(\.name) == [
+                "AirPods Max", "Beats",
+            ])
     }
 
     @Test func fakeHeadsetSwitchCountsAnyAliveOutputOnlyWithoutARealOne() {
         #expect(HeadsetConnection.connected(from: [Self.speakers, Self.mic], anyOutputCounts: true).map(\.id) == [1])
-        #expect(HeadsetConnection.connected(from: [Self.speakers, Self.airPods], anyOutputCounts: true).map(\.id) == [42])
+        #expect(
+            HeadsetConnection.connected(from: [Self.speakers, Self.airPods], anyOutputCounts: true).map(\.id) == [42])
         #expect(HeadsetConnection.connected(from: [Self.mic], anyOutputCounts: true).isEmpty)
     }
 
     @Test func logDescription() {
-        #expect(Headset(id: 42, name: "AirPods Max", transport: .bluetooth).logDescription == "AirPods Max [42, Bluetooth]")
+        #expect(
+            Headset(id: 42, name: "AirPods Max", transport: .bluetooth).logDescription == "AirPods Max [42, Bluetooth]")
         #expect(Headset(id: 7, name: "Beats", transport: .bluetoothLE).logDescription == "Beats [7, Bluetooth LE]")
     }
 }

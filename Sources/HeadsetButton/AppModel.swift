@@ -72,10 +72,10 @@ final class AppModel {
         session = NowPlayingSession { [weak self] gesture in self?.handle(gesture) }
         micMonitor = HeadsetMicMonitor { [weak self] busy in self?.headsetMicChanged(busy) }
         #if DEBUG
-        // Debug only: any output counts as a Headset when none is connected, to test the slot without one.
-        let fakeHeadset = ProcessInfo.processInfo.environment["HEADSET_BUTTON_FAKE_HEADSET"] == "1"
+            // Debug only: any output counts as a Headset when none is connected, to test the slot without one.
+            let fakeHeadset = ProcessInfo.processInfo.environment["HEADSET_BUTTON_FAKE_HEADSET"] == "1"
         #else
-        let fakeHeadset = false
+            let fakeHeadset = false
         #endif
         connectionMonitor = HeadsetConnectionMonitor(anyOutputCounts: fakeHeadset) { [weak self] headsets in
             self?.headsetsChanged(headsets)
@@ -194,7 +194,9 @@ final class AppModel {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            Log.action.error("Launch at login \(on ? "register" : "unregister", privacy: .public) failed: \(error.localizedDescription, privacy: .public)")
+            Log.action.error(
+                "Launch at login \(on ? "register" : "unregister", privacy: .public) failed: \(error.localizedDescription, privacy: .public)"
+            )
         }
         launchesAtLogin = SMAppService.mainApp.status == .enabled
     }
@@ -208,26 +210,28 @@ final class AppModel {
     private func observePlayers() {
         let distributed = DistributedNotificationCenter.default()
         for player in PlayerActivity.players {
-            observers.append(distributed.addObserver(
-                forName: Notification.Name(player.notificationName), object: nil, queue: .main
-            ) { [weak self] note in
-                let name = note.name.rawValue
-                let playerState = note.userInfo?[PlayerActivity.playerStateKey] as? String
-                MainActor.assumeIsolated { self?.playerChanged(notification: name, playerState: playerState) }
-            })
+            observers.append(
+                distributed.addObserver(
+                    forName: Notification.Name(player.notificationName), object: nil, queue: .main
+                ) { [weak self] note in
+                    let name = note.name.rawValue
+                    let playerState = note.userInfo?[PlayerActivity.playerStateKey] as? String
+                    MainActor.assumeIsolated { self?.playerChanged(notification: name, playerState: playerState) }
+                })
         }
-        observers.append(NSWorkspace.shared.notificationCenter.addObserver(
-            forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main
-        ) { [weak self] note in
-            let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
-            guard let bundleID = app?.bundleIdentifier else { return }
-            MainActor.assumeIsolated {
-                guard let self else { return }
-                var activity = self.playerActivity
-                activity.playerQuit(bundleID: bundleID)
-                self.setPlayerActivity(activity)
-            }
-        })
+        observers.append(
+            NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main
+            ) { [weak self] note in
+                let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+                guard let bundleID = app?.bundleIdentifier else { return }
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    var activity = self.playerActivity
+                    activity.playerQuit(bundleID: bundleID)
+                    self.setPlayerActivity(activity)
+                }
+            })
     }
 
     private func playerChanged(notification: String, playerState: String?) {
