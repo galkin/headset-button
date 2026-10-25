@@ -1,0 +1,18 @@
+# Build products
+/build/
+DerivedData/
+.build/
+.swiftpm/
+*.app
+*.dSYM/
+*.xcarchive
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+
+# macOS
+.DS_Store
+
+# Design exports (regenerate from design/headset-button.pen)
+design/*.png

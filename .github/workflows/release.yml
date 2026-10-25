@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # Runner image and Xcode: https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Show toolchain
+        run: xcodebuild -version && swift --version
+
+      - name: Test
+        run: swift test
+
+      - name: Build app
+        env:
+          # Tag v1.2.0 -> CFBundleShortVersionString 1.2.0; CFBundleVersion is the run number.
+          VERSION: ${{ github.ref_name }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: VERSION="${VERSION#v}" scripts/build-app.sh Release
+
+      - name: Zip app
+        id: zip
+        run: |
+          zip="Headset-Button-${GITHUB_REF_NAME#v}.zip"
+          # ditto keeps the bundle's structure, symlinks and code signature intact.
+          ditto -c -k --keepParent "build/Headset Button.app" "build/$zip"
+          echo "path=build/$zip" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ZIP: ${{ steps.zip.outputs.path }}
+        run: gh release create "$GITHUB_REF_NAME" "$ZIP" --title "Headset Button ${GITHUB_REF_NAME}" --generate-notes --verify-tag
